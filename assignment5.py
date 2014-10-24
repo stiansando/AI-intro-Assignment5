@@ -182,9 +182,9 @@ class CSP:
           if self.revise(assignment, x, y):
             neighbors = self.get_all_neighboring_arcs(x)
             for neighbor in neighbors:
-              queue.append((neighbor, x))
+              queue.append((neighbor[0], x))
 
-    def revise(self, assignment, i, j):
+    def revise(self, assignment, x, y):
         """The function 'Revise' from the pseudocode in the textbook.
         'assignment' is the current partial assignment, that contains
         the lists of legal values for each undecided variable. 'i' and
@@ -194,12 +194,20 @@ class CSP:
         legal values in 'assignment'.
         """
         # TODO: IMPLEMENT THIS
-        removed = False
-        for value_i in assignment[i]:
-          for value_j in assignment[j]:
-            if value_i == value_j and len(assignment[j]) == 1:
-              assignment[i].remove(value_i)
-              removed = True
+        # Hvis (value_x, value_y) ikke finnes i constraints[x][y] for noen av value_y i assignment[y] saa skal value_x slettes.
+
+        index = 0
+        while index < len(assignment[x]):
+          removed = False
+          value_x = assignment[x][index]
+          compare_xy_list = []
+          for value_y in assignment[y]:
+            compare_xy_list.append((value_x, value_y))
+          if len(set(compare_xy_list) & set(self.constraints[x][y])) == 0:
+            assignment[x].remove(value_x)
+            removed = True
+          else:
+            index += 1
         return removed
 
 def create_map_coloring_csp():
@@ -262,9 +270,9 @@ def print_sudoku_solution(solution):
             print '------+-------+------'
 
 def main():
-  csp = create_map_coloring_csp()
-  print csp.backtracking_search()
-
+  #csp = create_map_coloring_csp()
+  csp = create_sudoku_csp("veryhard.txt")
+  print_sudoku_solution(csp.backtracking_search())
 
 if __name__ == "__main__":
   main()
